@@ -1,0 +1,4 @@
+rootProject.name = 'CommentEngine'
+
+include 'api'
+include 'util'
