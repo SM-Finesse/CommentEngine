@@ -1,0 +1,9 @@
+dependencies {
+    api project(':util')
+    api 'com.fasterxml.jackson.core:jackson-annotations'
+    api 'jakarta.validation:jakarta.validation-api'
+
+    testImplementation 'tools.jackson.core:jackson-databind'
+    testImplementation 'org.hibernate.validator:hibernate-validator'
+    testImplementation 'org.apache.tomcat.embed:tomcat-embed-el'
+}
