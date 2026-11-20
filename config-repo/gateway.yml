@@ -1,0 +1,11 @@
+server.port: 8080
+spring.application.name: gateway
+
+# 넘길 곳에 붙을 때 기다리는 시간과 응답을 기다리는 시간 (설계서 8장: gateway는 제한 시간만)
+spring.cloud.gateway.server.webflux:
+  httpclient:
+    connect-timeout: 3000   # 연결 3초 (밀리초)
+    response-timeout: 60s   # 응답 60초
+
+# 경로는 여기에 적지 않는다. 칩이 chips/<칩>/gateway.yml 의 app.routes.<이름> 으로 들고 온다 (ChipRoutesConfiguration).
+# comment-engine은 밖에 열지 않는 서비스라 gateway에 경로를 두지 않는다 (설계서 4장).
