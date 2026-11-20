@@ -1,0 +1,19 @@
+plugins {
+    id 'org.springframework.boot' version '4.1.1'
+}
+
+// 실행용 bootJar 하나만 남긴다
+jar {
+    enabled = false
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// 루트에 인코딩 설정이 없어 Windows에서 한글 주석이 깨지지 않도록 모듈에서 지정
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
