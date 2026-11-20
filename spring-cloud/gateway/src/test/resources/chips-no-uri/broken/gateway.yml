@@ -1,0 +1,5 @@
+# 시험용 잘못된 칩 — uri가 빠져 있다. gateway가 이 파일을 읽으면 뜨지 않아야 한다
+app.routes:
+  broken-api:
+    paths:
+      - /api/**

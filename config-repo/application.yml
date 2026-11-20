@@ -1,0 +1,5 @@
+# 모든 서비스가 같이 읽는 설정 (교재 config-repo/application.yml 에서 메시지 큐·인증 서버를 뺀 것)
+
+# 헬스·정보만 밖으로 연다
+management.endpoints.web.exposure.include: "health,info"
+management.endpoint.health.show-details: "ALWAYS"
