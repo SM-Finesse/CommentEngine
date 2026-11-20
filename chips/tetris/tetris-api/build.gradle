@@ -1,0 +1,5 @@
+dependencies {
+    api 'com.fasterxml.jackson.core:jackson-annotations'
+
+    testImplementation 'tools.jackson.core:jackson-databind'
+}

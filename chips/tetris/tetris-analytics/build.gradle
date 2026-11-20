@@ -1,0 +1,70 @@
+plugins {
+    id 'org.springframework.boot' version '4.1.1'
+    id 'org.gradle.test-retry' version '1.6.6'
+}
+
+group = 'com.finesse'
+
+configurations {
+    mockitoAgent {
+        extendsFrom api
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}
+
+dependencies {
+    implementation project(':chips:tetris:tetris-api')
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-webclient'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1'
+    implementation 'io.github.resilience4j:resilience4j-retry:2.4.0'
+    implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.4.0'
+    implementation 'io.micrometer:micrometer-core'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'org.springframework.boot:spring-boot-starter-zipkin'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-cache-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webclient-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.5.1'
+    mockitoAgent('org.mockito:mockito-core') {
+        transitive = false
+    }
+}
+
+abstract class MockitoAgentArgument implements CommandLineArgumentProvider {
+    @Classpath
+    abstract ConfigurableFileCollection getAgentJar()
+
+    @Override
+    Iterable<String> asArguments() {
+        ["-javaagent:${agentJar.singleFile.absolutePath}"]
+    }
+}
+
+tasks.named('test') {
+    // Java 25에서 Mockito를 테스트 JVM 시작 시 로드한다.
+    jvmArgumentProviders.add(objects.newInstance(MockitoAgentArgument).tap {
+        agentJar.from(configurations.mockitoAgent)
+    })
+    retry {
+        maxRetries = 4
+        maxFailures = 5
+        failOnPassedAfterRetry = false
+        filter {
+            includeClasses.add('com.finesse.backend.client.TetrioClientSharedLimiterTest')
+            includeClasses.add('com.finesse.backend.service.StatsServiceBusyTest')
+        }
+    }
+    reports.junitXml.mergeReruns = true
+}

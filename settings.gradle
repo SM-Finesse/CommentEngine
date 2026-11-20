@@ -2,3 +2,5 @@ rootProject.name = 'CommentEngine'
 
 include 'api'
 include 'util'
+include 'chips:tetris:tetris-api'
+include 'chips:tetris:tetris-analytics'

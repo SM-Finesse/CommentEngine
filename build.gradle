@@ -1,4 +1,4 @@
-subprojects {
+configure(subprojects.findAll { it.buildFile.exists() }) {
     apply plugin: 'java-library'
 
     group = 'com.commentengine'
