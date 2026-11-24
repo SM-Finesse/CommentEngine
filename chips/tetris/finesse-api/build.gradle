@@ -8,6 +8,8 @@ group = 'com.finesse'
 dependencies {
     // 칩 안 계약: 통계 DTO (조각 3). 지금은 시험에서 "읽힌다"만 확인하고, 화면에는 받은 바이트를 그대로 넘긴다
     implementation project(':chips:tetris:tetris-api')
+    // 엔진 계약 DTO (SectionRequest 등, 조각 1). 조각 8도 같은 줄을 넣는다 — 병합 때 한 줄만 남김
+    implementation project(':api')
 
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-restclient'
