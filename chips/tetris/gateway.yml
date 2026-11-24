@@ -1,0 +1,11 @@
+# tetris 칩이 gateway에 들고 가는 경로 (ChipRoutesConfiguration). gateway 코드·config-repo/gateway.yml은 고치지 않는다
+app.routes:
+  finesse-api:
+    uri: http://localhost:8092
+    paths:
+      - /api/**
+
+# 헬스 모으기용 주소 (gateway 헬스 모으기는 아직 없음 — 그때 이 묶음을 읽는다)
+app.health:
+  finesse-api: http://localhost:8092/actuator/health
+  tetris-analytics: http://localhost:7002/actuator/health
