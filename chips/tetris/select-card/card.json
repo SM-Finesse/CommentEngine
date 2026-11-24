@@ -1,0 +1,8 @@
+{
+  "name": "Finesse",
+  "description": "테트리스 플레이 분석 · 코멘트",
+  "url": "http://{host}:8088",
+  "image": "card.svg",
+  "color": "#7c4dff",
+  "order": 10
+}
