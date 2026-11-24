@@ -8,6 +8,18 @@ analytics:
   connect-timeout-ms: 3000    # 연결 3초
   read-timeout-ms: 25000      # 읽기 25초 (analytics 통계 마감 20초보다 조금 길게)
 
+engine:
+  base-url: ${ENGINE_BASE_URL:http://localhost:7001}
+  connect-timeout-ms: 3000    # 연결 3초
+  read-timeout-ms: 45000      # 응답 45초 (light 마감 40초보다 조금 길게 — 엔진이 마감을 넘길 때의 안전망)
+
+light:
+  deadline-seconds: 40        # 통계가 끝난 때부터 (모놀리식 app.endpoint.light-seconds)
+  metrics-file: ${CHIP_CONFIG_DIR:../config}/light-metrics.json
+  cache:
+    ttl: 10m
+    max-size: 1000
+
 resilience4j:
   retry:
     instances:
@@ -16,6 +28,11 @@ resilience4j:
         wait-duration: 1s
         retry-exceptions:     # 닿지 않을 때만. 늦은 것은 다시 부르지 않음
           - com.finesse.composite.AnalyticsUnreachableException
+      engine:
+        max-attempts: 2       # 처음 1번 + 다시 1번
+        wait-duration: 1s
+        retry-exceptions:     # 닿지 않을 때만. 엔진이 에러로 답했거나 늦은 것은 다시 부르지 않음
+          - com.finesse.composite.EngineUnreachableException
   circuitbreaker:
     instances:
       analytics:
@@ -31,5 +48,19 @@ resilience4j:
         record-exceptions:    # 닿지 않거나 답이 없는 것만 실패. 404·503처럼 답한 건 살아 있는 것
           - com.finesse.composite.AnalyticsUnreachableException
           - com.finesse.composite.AnalyticsTimeoutException
+      engine:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 5
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50          # 최근 5번 중 50% 실패면
+        wait-duration-in-open-state: 10s    # 10초 열림
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        register-health-indicator: true
+        allow-health-indicator-to-fail: false
+        record-exceptions:    # 닿지 않거나 답이 없는 것만. 엔진이 503·502로 답했다면 엔진은 살아 있음
+          - com.finesse.composite.EngineUnreachableException
+          - com.finesse.composite.EngineTimeoutException
 
-# 엔진(engine.*, resilience4j.*.engine) 설정은 조각 8에서 넣는다
+management.health.circuitbreakers.enabled: true   # /actuator/health 에 회로 상태 (analytics, engine)
+
