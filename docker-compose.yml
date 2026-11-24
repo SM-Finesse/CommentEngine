@@ -1,0 +1,63 @@
+# 본체만 있다: gateway, 추적 화면(zipkin). 칩의 서비스는 여기에 없다 (본체 분야 단어 0건).
+#
+#   gateway ── 칩이 들고 온 경로 (chips/<칩>/gateway.yml) → 칩의 서비스
+#
+# 칩은 chips/<칩>/ 폴더 하나다. 칩은 chips/<칩>/compose.yml 을 들고 오고,
+# 레포 루트 .env 의 COMPOSE_FILE 목록에 그 파일을 한 줄 더하면 꽂힌다 (빼면 뽑힌다).
+# 그래서 아래 명령은 본체와 꽂힌 칩을 같이 띄운다 (.env 를 읽는다):
+#
+#   ./gradlew build -x test
+#   docker compose up -d --build
+#
+# 밖으로 여는 포트: gateway 8080, Zipkin 9411. (서비스 선택 화면 8090은 조각 11이 들어오면 여기에 더한다)
+# 참고용 레포(MSA-CommentEngine-reference)와 포트가 같으므로 같은 PC에서 동시에 띄우지 않는다.
+#
+# 아직 없는 본체 서비스 (조각이 병합되면 이 파일에 더한다):
+#   comment-engine  조각 5 · 7b  (밖에 열지 않음. 생성 서버 주소는 칩 compose가 환경 변수로 준다)
+#   select-screen   조각 11      (nginx, 8090)
+
+x-healthcheck: &healthcheck
+  # eclipse-temurin:25-jre 에는 wget · curl 이 없어 bash 의 /dev/tcp 로 관리 포트(4004)를 부른다
+  # readiness 는 "이 서비스가 요청을 받을 준비가 됐나"만 본다. 다른 서비스가 죽어도 이 컨테이너는 정상
+  test:
+    - CMD
+    - bash
+    - -c
+    - >-
+      exec 3<>/dev/tcp/localhost/4004 &&
+      printf 'GET /actuator/health/readiness HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+      grep -q '"status":"UP"' <&3
+  interval: 5s
+  timeout: 3s
+  retries: 30
+  start_period: 10s
+
+services:
+  gateway:
+    build: spring-cloud/gateway
+    image: commentengine/gateway
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      # gateway 의 application.yml 이 이 두 폴더에서 설정을 읽는다 (config-repo 2개 + chips/*/gateway.yml)
+      - CONFIG_DIR=/config-repo
+      - CHIPS_DIR=/chips
+    volumes:
+      - ./config-repo:/config-repo:ro
+      # chips 폴더는 통째로 꽂지 않는다. 칩 compose가 자기 gateway.yml 한 파일만 /chips/<칩>/ 에 꽂는다
+      # → .env 에서 칩 줄을 빼면 그 칩의 경로도 gateway에서 같이 빠진다
+    ports:
+      - "8080:8080"
+    healthcheck: *healthcheck
+    depends_on:
+      zipkin:
+        condition: service_started
+
+  # 추적 화면 (교재 14장). gateway → 칩의 서비스 → … 요청이 한 줄로 이어져 보인다
+  zipkin:
+    image: openzipkin/zipkin:3.5.0
+    mem_limit: 1024m
+    environment:
+      - STORAGE_TYPE=mem
+    ports:
+      - "9411:9411"
