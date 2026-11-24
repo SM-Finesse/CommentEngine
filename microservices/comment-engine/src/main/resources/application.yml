@@ -1,0 +1,11 @@
+server:
+  port: 7001
+
+spring:
+  application:
+    name: comment-engine
+
+engine:
+  gate:
+    # 생성 서버 한 대에 한 번에 들여보내는 수
+    permits: 1

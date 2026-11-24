@@ -1,0 +1,35 @@
+# finesse-api (tetris 칩의 조합 서비스) 설정. 모듈의 application.yml이 이 파일을 spring.config.import로 읽는다.
+server.port: 8092
+spring.application.name: finesse-api
+spring.jackson.property-naming-strategy: SNAKE_CASE
+
+analytics:
+  base-url: ${ANALYTICS_BASE_URL:http://localhost:7002}
+  connect-timeout-ms: 3000    # 연결 3초
+  read-timeout-ms: 25000      # 읽기 25초 (analytics 통계 마감 20초보다 조금 길게)
+
+resilience4j:
+  retry:
+    instances:
+      analytics:
+        max-attempts: 2       # 처음 1번 + 다시 1번
+        wait-duration: 1s
+        retry-exceptions:     # 닿지 않을 때만. 늦은 것은 다시 부르지 않음
+          - com.finesse.composite.AnalyticsUnreachableException
+  circuitbreaker:
+    instances:
+      analytics:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 5
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50          # 최근 5번 중 50% 실패면
+        wait-duration-in-open-state: 10s    # 10초 열림
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        register-health-indicator: true
+        allow-health-indicator-to-fail: false
+        record-exceptions:    # 닿지 않거나 답이 없는 것만 실패. 404·503처럼 답한 건 살아 있는 것
+          - com.finesse.composite.AnalyticsUnreachableException
+          - com.finesse.composite.AnalyticsTimeoutException
+
+# 엔진(engine.*, resilience4j.*.engine) 설정은 조각 8에서 넣는다

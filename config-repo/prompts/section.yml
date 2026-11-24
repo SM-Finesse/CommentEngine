@@ -1,0 +1,45 @@
+# section — heavy 챕터 하나에 붙는 각주 (1~2문장)
+# 원본: 모놀리식 llm-server/app/prompt.py HEAVY_COMMON, build_heavy_messages() (heavy v4.x)
+#       챕터별 [용어]·[해석]·[예시]는 분야 내용이라 빼고, 칩이 section.description·item.meaning·rules로 보냄
+# 칸 채우는 규칙: 같은 폴더 README.md
+
+version: section-v1
+
+decoding:
+  temperature: 0.4
+  top_p: 0.9
+  max_tokens: 160
+
+check:
+  length: { min: 40, max: 70 }   # 원본 HEAVY_COMMON "1-2문장(40~70자)"
+  numbers: true                  # 괄호 안 value_text 인용만 허용 (항목 여러 개 중 아무거나)
+
+system: |
+  {{context.name}}의 '{{section.title}}' 챕터 아래에 붙는 각주를 한국어로 씁니다.
+  {{section.description}}
+  아래 지표 값들이 무엇을 뜻하는지 1~2문장(40~70자)으로 짧게 설명하세요.
+
+  규칙
+  - 지표마다 입력의 '방향'을 그대로 따르세요. 값의 부호를 다시 해석하지 마세요.
+  - 방향 문장이 '~하는 편입니다'나 '그 폭은 작은 편'인 지표는 '크게', '뚜렷하게' 같은 말로 부풀리지 마세요. 값이 0이 아닌 지표를 '같은 수준', '비슷하다'로 쓰지 마세요.
+  {{reliability_rule}}
+  - 값을 쓰려면 문장 끝 괄호에 입력 그대로 씁니다. 다시 반올림하거나 백분율로 바꾸지 마세요. 값은 빼도 됩니다.
+  - 괄호 밖에는 숫자를 쓰지 마세요. 입력에 없는 수치를 만들지 말고, 두 값의 차이도 계산하지 마세요.
+  - 지표 이름은 입력의 이름 그대로 씁니다. 지표의 뜻을 다시 설명하지 말고, 값과 그 뜻만 쓰세요.
+  - 사람을 한 유형으로 규정하지 마세요. 주어는 사람이 아니라 지표로 씁니다.
+  - 입력에 없는 대상과 비교하지 마세요. '~해야 합니다' 같은 조언은 쓰지 마세요.
+  {{context.rules}}
+  - 각주 문장만 쓰세요. 입력 줄을 목록으로 옮겨 적지 말고, 제목·번호·쌍점(:)·따옴표는 쓰지 마세요.
+
+user: |
+  챕터: {{section.title}}
+  {{items}}
+item_line: "- {{label}}: 값 {{value_text}}, 방향: {{direction}}"
+
+reliability_rules:
+  insufficient: "- 기록이 적은 지표가 있으면 '아직 기록이 적어' 같은 단서를 붙이고 단정하지 마세요."
+
+# 항목이 여러 개라 DEGREE 검사는 하지 않음 (summary 와 같은 이유)
+degree_forbidden: {}
+
+leak_markers: ["규칙", "챕터:", "방향:", "출력", "1~2문장", "{{", "}}"]
