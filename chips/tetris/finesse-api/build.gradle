@@ -8,6 +8,9 @@ group = 'com.finesse'
 dependencies {
     // 칩 안 계약: 통계 DTO (조각 3). 지금은 시험에서 "읽힌다"만 확인하고, 화면에는 받은 바이트를 그대로 넘긴다
     implementation project(':chips:tetris:tetris-api')
+    // 엔진 계약 DTO(LightRequest·LightResponse·Item·Degree)와 엔진 에러 코드 — 엔진 코드는 가져오지 않고 계약만 본다
+    implementation project(':api')
+    implementation project(':util')
 
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-restclient'
@@ -15,8 +18,12 @@ dependencies {
     // tetris-analytics 구간의 다시 시도·회로 차단기 (교재 13장 애너테이션 방식). 버전은 11/10 버전 시험에서 정한 값
     implementation 'io.github.resilience4j:resilience4j-spring-boot4:2.4.0'
     implementation 'org.springframework.boot:spring-boot-starter-aspectj'   // @Retry·@CircuitBreaker가 쓰는 AOP
+    // light 코멘트 캐시 (모놀리식 CacheConfig와 같은 Caffeine). 같은 열쇠의 동시 요청은 한 번만 만들려고 AsyncCache를 쓴다
+    implementation 'com.github.ben-manes.caffeine:caffeine'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // 만든 LightRequest가 계약(api 모듈의 jakarta.validation 애너테이션)을 지키는지 시험에서 검사
+    testImplementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 // 실행 jar 하나만 만든다 (Docker는 조각 10)
