@@ -1,0 +1,8 @@
+# 설정 본문은 칩 폴더의 config/finesse-api.yml에 있고, 공통 설정만 본체의 config-repo/application.yml을 같이 읽는다 (gateway와 같은 방식).
+# 로컬 실행·시험: 작업 폴더가 이 모듈 폴더(chips/tetris/finesse-api)라 ../../../config-repo 와 ../config 를 읽는다.
+# 다른 곳에서 띄울 때는 CONFIG_DIR·CHIP_CONFIG_DIR 환경변수로 폴더만 바꾼다.
+spring:
+  config:
+    import:
+      - file:${CONFIG_DIR:../../../config-repo}/application.yml
+      - file:${CHIP_CONFIG_DIR:../config}/finesse-api.yml
