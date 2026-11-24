@@ -1,0 +1,28 @@
+{
+  "version": "light-metrics-v1",
+  "context": {
+    "name": "TETR.IO 전적 분석 페이지 첫 화면",
+    "rules": [
+      "연승, 연패, 최근 몇 경기, 티어, TR은 쓰지 마세요.",
+      "다른 유저와 비교하지 마세요('같은 티어', '다른 유저들보다', '평균적인 플레이어보다', '비슷한 실력의 상대보다', '드물게').",
+      "지표 이름은 입력의 이름 그대로 쓰고 영어 약어(APP, VS/APM, Cheese Index, VS)는 쓰지 마세요.",
+      "성향 지표(Opener·Plonk·Stride·Infinite Downstack 성향, 수비 비중, 가비지 처리 성향)는 잘하고 못함으로 쓰지 않습니다.",
+      "상대 강도별 승률, 역전승·역전패 경향, 라운드별 공방 능력 변화에는 '상대보다'를 붙이지 않습니다."
+    ]
+  },
+  "compare_phrases": ["상대 대비", "맞붙은 상대들에 비해", "최근 대전 상대들보다", "대전 상대 평균 대비", "매 경기 상대와 견줘 보면"],
+  "common_must_not": ["다른 유저", "다른 플레이어", "평균적인 플레이어", "비슷한 실력", "전체 유저", "유저들", "연승", "연패", "티어", "보통 범위", "사분위"],
+  "metrics": {
+    "delta_opener":       { "label": "Opener 성향",            "group": "tendency",       "compare": true,  "decimals": 2, "meaning": "초반 공격 위주 성향을 상대와 견준 차이" },
+    "delta_plonk":        { "label": "Plonk 성향",             "group": "tendency",       "compare": true,  "decimals": 2, "meaning": "효율·가비지 활용 위주 성향을 상대와 견준 차이" },
+    "delta_stride":       { "label": "Stride 성향",            "group": "tendency",       "compare": true,  "decimals": 2, "meaning": "속도 위주 성향을 상대와 견준 차이" },
+    "delta_inf_ds":       { "label": "Infinite Downstack 성향", "group": "tendency",      "compare": true,  "decimals": 2, "meaning": "다운스택(수비) 위주 성향을 상대와 견준 차이" },
+    "delta_app":          { "label": "블록당 공격력",          "group": "rank",           "compare": true,  "decimals": 2, "meaning": "블록 하나당 공격량을 상대와 견준 차이" },
+    "delta_weighted_app": { "label": "보정 공격 효율",          "group": "rank",           "compare": true,  "decimals": 2, "meaning": "가비지 처리 성향으로 보정한 공격 효율을 상대와 견준 차이" },
+    "delta_vs_apm":       { "label": "수비 비중",              "group": "vs_apm",         "compare": true,  "decimals": 2, "meaning": "공격 대비 수비 비율을 상대와 견준 차이" },
+    "delta_cheese_index": { "label": "가비지 처리 성향",        "group": "cheese",         "compare": true,  "decimals": 1, "meaning": "받은 가비지를 처리하는 성향을 상대와 견준 차이" },
+    "strength_split":     { "label": "상대 강도별 승률",        "group": "strength_split", "compare": false, "decimals": 2, "meaning": "가장 강한 상대 구간 승률에서 가장 약한 상대 구간 승률을 뺀 값" },
+    "delta_comeback":     { "label": "역전승·역전패 경향",      "group": "comeback",       "compare": false, "decimals": 2, "meaning": "역전승 경향에서 역전패 경향을 뺀 값" },
+    "session_vs_slope":   { "label": "라운드별 공방 능력 변화", "group": "session",        "compare": false, "decimals": 2, "meaning": "한 매치 안에서 라운드가 진행될 때 공방 능력이 변하는 기울기" }
+  }
+}
