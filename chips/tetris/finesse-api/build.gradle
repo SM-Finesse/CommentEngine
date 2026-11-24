@@ -15,11 +15,14 @@ dependencies {
     // tetris-analytics 구간의 다시 시도·회로 차단기 (교재 13장 애너테이션 방식). 버전은 11/10 버전 시험에서 정한 값
     implementation 'io.github.resilience4j:resilience4j-spring-boot4:2.4.0'
     implementation 'org.springframework.boot:spring-boot-starter-aspectj'   // @Retry·@CircuitBreaker가 쓰는 AOP
+    // 분산 추적 (교재 14장). RestClient.Builder로 만든 호출에 추적 머리글이 붙어 analytics까지 한 추적으로 이어진다
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'org.springframework.boot:spring-boot-starter-zipkin'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-// 실행 jar 하나만 만든다 (Docker는 조각 10)
+// 실행 jar 하나만 만든다 (Dockerfile이 build/libs/*.jar 하나를 집음)
 tasks.named('jar') {
     enabled = false
 }

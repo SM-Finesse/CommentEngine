@@ -9,3 +9,12 @@ app.routes:
 app.health:
   finesse-api: http://localhost:8092/actuator/health
   tetris-analytics: http://localhost:7002/actuator/health
+
+---
+# 컨테이너 안 (docker 프로필): 서비스 이름으로 찾고, 헬스는 관리 포트(4004)에 있다
+spring.config.activate.on-profile: docker
+
+app.routes.finesse-api.uri: http://finesse-api:8092
+app.health:
+  finesse-api: http://finesse-api:4004/actuator/health
+  tetris-analytics: http://tetris-analytics:4004/actuator/health
